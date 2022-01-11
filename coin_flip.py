@@ -1,5 +1,7 @@
 import random
-import matplotlib
+#import matplotlib
+    # issue with m1 mac not working with matplotlib, numpy, pip, etc
+    ## https://apple.stackexchange.com/questions/421486/m1-mac-mini-python-reports-mach-o-but-wrong-architecture
 
 def flip():
     global coin
@@ -28,45 +30,76 @@ def consec_heads(runs):
     #for graphing purposes
     numbers = []
     lables = []
+    unique_list = []
+    total_runs = runs
     while runs > 0:
         flip()
         if coin == "Heads":
-            print("flipped heads")
+            # test print
+            #print("flipped heads")
             head_count += 1
             total_head_count += 1
         else:
-            print("flipped tails")
-            print("You flipped " + str(head_count) + " consecutive Heads!")
-            print("You are done flipping.")
+            # test print
+            #print("flipped tails")
+            #print("You flipped " + str(head_count) + " consecutive Heads!")
+
             record.append(head_count)
             head_count = 0
             #tail_count += 1
             runs -= 1
+    print("You are done flipping.")
     print("------------------")
     print("Statistics: ")
-    print("Record of flips: " + str(record))
+    # if number of runs is high, don't display record because it'd be too much
+    if total_runs <= 100:
+        print("Record of flips: " + str(record))
     print("Max consecutive Head streak: " + str(max(record)))
     print("Average streak: " +str((sum(record)/len(record))))
     #total number of heads versus tails
     print("Total number of Heads flipped: " +str(total_head_count))
+    # finding max streak
+    print("Max streak is: " + str(max(record)))
+
+    #create list of unique numbers, then FOR (loop) each of those elements, count how many occured in the record of flips
+    ##create list of unique numbers/ or just max(list) and n-1 until 0 to go through all possible streaks
+
+    for i in range(max(record)):
+        unique_list.append(i+1)
+
+    """ # test for below
+    print("List of unique elements: " + str(unique_list))
+    """
+
+    # lists count for unique items
+    ## want to round percentage place based on the total_runs (original runs) to give nice legible percentages
+    for i in unique_list:
+        print(str(i) + " count: " + str(record.count(i)) + "(" + str(round(record.count(i)/total_runs*100, len(str(total_runs)))) + "%)")
+
+
+    #print(str(unique_list(i)) + " count: " + str(unique_list.count(record,i)))
 
     # find occurances of each item(unique streak) in list
     ## starting with highest streak, count how many times that streak has occured
 
+"""
     # finding max streak
     list_count = max(record)
+
+
     #print("List Count is: " + str(list_count))
     # from highest streak, go down by 1 streak until zero, count number of occurences.
-    while list_count > -1:
+    while list_count >= 0:
         print("'" + str(list_count) + "'" + " occured " + str(record.count(list_count)) + " many times.")
-        """
+
         numbers.append(record.count(list_count))
         labels.append(list_count)
         print(numbers)
         print(labels)
-        """
-        list_count -= 1
 
+        list_count -= 1
+"""
+"""
     # ------------------------ #
     # matplotlib
     ## bar chart of occurances
@@ -74,7 +107,5 @@ def consec_heads(runs):
         plt.bar(pos,numbers,color='blue')
         plt.xticks(ticks=pos,labels=labels)
         plt.show()
-
-
-
-consec_heads(20)
+"""
+consec_heads(10000000)
