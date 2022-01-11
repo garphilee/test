@@ -55,7 +55,7 @@ def consec_heads(runs):
     if total_runs <= 100:
         print("Record of flips: " + str(record))
     print("Max consecutive Head streak: " + str(max(record)))
-    print("Average streak: " +str((sum(record)/len(record))))
+    print("Average streak: " + str((sum(record)/len(record))))
     #total number of heads versus tails
     print("Total number of Heads flipped: " +str(total_head_count))
     # finding max streak
@@ -64,8 +64,8 @@ def consec_heads(runs):
     #create list of unique numbers, then FOR (loop) each of those elements, count how many occured in the record of flips
     ##create list of unique numbers/ or just max(list) and n-1 until 0 to go through all possible streaks
 
-    for i in range(max(record)):
-        unique_list.append(i+1)
+    for i in range(0,max(record)+1):
+        unique_list.append(i)
 
     """ # test for below
     print("List of unique elements: " + str(unique_list))
@@ -82,7 +82,7 @@ def consec_heads(runs):
     # find occurances of each item(unique streak) in list
     ## starting with highest streak, count how many times that streak has occured
 
-"""
+    """
     # finding max streak
     list_count = max(record)
 
@@ -108,4 +108,4 @@ def consec_heads(runs):
         plt.xticks(ticks=pos,labels=labels)
         plt.show()
 """
-consec_heads(10000000)
+consec_heads(100)
