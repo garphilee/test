@@ -1,0 +1,95 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_breast_cancer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, precision_recall_fscore_support, roc_curve
+from sklearn.model_selection import train_test_split
+
+# 'specificity is recall of a negative class' - ie. percentage of true negative (true negative/(true negative + false positive))
+def specificity_score(y_true, y_pred):
+    p, r, f, s = precision_recall_fscore_support(y_true, y_pred) # in pack precision_recall... into variables p,r,f,s
+    #print('precision,recall,f1,support:', p, r, f, s) # check what p,r,f,s values are
+    return r[0] # return recall (which is the 'r'/2nd array), grab [0] and [1] index values indicate 'recall' for percentage of true negative and positive respectively (sensitivity = positive, specificity = negative)
+#print('precision recall fscore support:',precision_recall_fscore_support(y, y_pred))
+
+
+"""
+print(cancer_data,'\n') # show everything
+print(cancer_data.keys(),'\n') #
+print(cancer_data['DESCR'],'\n') # detailed description of dataset
+print(cancer_data['data']) # just array
+print(cancer_data['data'].shape) # shape of array
+print(cancer_data['feature_names']) # key names
+print(cancer_data['target']) # print target array, which are 0s or 1s; see 'target_names' to distinguish 0's and 1's
+print(cancer_data['target'].shape) # 1-dim array
+print(cancer_data['target_names']) # explains target 0's and 1's are 'malignant' and 'benign' respectively
+"""
+
+
+cancer_data = load_breast_cancer()
+df = pd.DataFrame(cancer_data['data'],
+columns = cancer_data['feature_names']) # current 'data' DataFrame doesn't include 'targets' (ie. outcomes 'malignant' or 'benign'); column needs to be appended from cancer_data['target']
+df['target'] = cancer_data['target'] # add column in DataFrame based on cancer_data['target'] column
+
+X = df[cancer_data.feature_names].values # 'feature_names' array; is this the same as cancer_data['data']?
+y = df['target'].values # 'target' array
+
+#print(X)
+#print(y)
+
+#model = LogisticRegression(solver='liblinear')
+#model.fit(X, y)
+#print("prediction for datapoint 0:", model.predict([X[0]])) # prediction for first datapoint in dataset
+#y_pred = model.predict(X)
+#print(model.score(X, y))
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.75, random_state=26) # split into testing and training set; optional random_state to lock-in 'random' 'seed'; default split 75/25%, but can set train_size = 0.XX/1
+"""
+#print("whole dataset:", X.shape, y.shape)
+#print("training set:", X_train.shape, y_train.shape)
+#print("test set:", X_test.shape, y_test.shape)
+"""
+
+model = LogisticRegression(solver='liblinear') # create another model based on training split
+model.fit(X_train, y_train)
+#print('model score:',model.score(X_test, y_test)) # scoring model based on test split
+
+
+y_pred = model.predict(X_test)
+"""
+print('y_pred:', y_pred) # y_predictions based on model using test (and random) X values
+print('accuracy:', accuracy_score(y_test, y_pred))
+print('precision:', precision_score(y_test, y_pred))
+print('recall:', recall_score(y_test, y_pred))
+print('f1 score:', f1_score(y_test, y_pred))
+"""
+# sensitivity = percentage of true positive (true positive/(true positive + false negative))
+sensitivity_score = recall_score
+print('sensitivity score:',sensitivity_score(y_test, y_pred)) # 'sensitivity' another term for 'recall score', that is why we set them equal above
+print('specificity score:',specificity_score(y_test, y_pred)) # 'specificity is recall of negative class'
+
+y_pred = model.predict_proba(X_test)[:, 1] > 0.75 # cannot apply np.around because '> 0.75' condition returns 'bool' values
+print('predict_proba:\n', np.around(model.predict_proba(X_test)[:, 1], decimals=2)) # probability values for each X_test prediction; result numpy array with 2 values each datapoint that sum to 1.
+# Point is 'model.predict' usually provides 0 or 1 value, based on 0.5 rounding. Here, we can change the rounding by setting values to True or False based on value we set (in this case, 0.75)
+## Values are 'probability that datapoint is in 0 class' and 'probability that datapoint is in 1 class'
+### More applicable for SoloLearn.titanic example, where 'target' was 'Survivability', being 0 or 1 (died or survived)
+#### if we only want certain column, we can append something like [:,1] to grab only values in 2nd column, which are the "confidence in 'surviving'" values.
+##### additionally implemented numpy to round values to better comprehend
+#print('length y_pred:', len(y_pred))
+y_pred_proba = model.predict_proba(X_test)
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_proba[:,1]) # false positive rate (1-specificity; x-axis), true positive rate (y-axis)
+
+#print('precision:', precision_score(y_test, y_pred)) # new precision score based on 0.75 threshold
+#print('recall:', recall_score(y_test, y_pred))# new recall score based on 0.75 threshold
+
+# code for plotting ROC curve in matplotlib
+plt.plot(fpr, tpr)
+plt.plot([0, 1], [0, 1], linestyle='--') # code for plotting diagonal line
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.0])
+plt.xlabel('1 - specificity')
+plt.ylabel('sensitivity')
+plt.show()
+
+print(roc_auc_score(y_test, y_pred_proba[:,1]))
